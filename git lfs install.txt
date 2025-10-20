@@ -1,5 +1,0 @@
-git lfs install
-git lfs track "*.json"
-git add add .
-git commit -m "add datasets tracked via Git LFS" 
-git push origin main --force
