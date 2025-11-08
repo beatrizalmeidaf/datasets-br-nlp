@@ -1,10 +1,12 @@
 # 🇧🇷 Datasets de NLP em Português Brasileiro
 
-Esse repositório é uma coleção curada de datasets para Processamento de Linguagem Natural (PLN) focados no português brasileiro. O objetivo é centralizar e facilitar o acesso a recursos para treinamento e avaliação de modelos de NLP em nosso idioma, principalmente para o cenário few shot.
+Esse repositório reúne uma coleção curada de **datasets para Processamento de Linguagem Natural (PLN)** focados no **português brasileiro**.
+O objetivo é centralizar recursos, facilitar o acesso e disponibilizar versões processadas para **cenários de Few-shot Learning**, com folds padronizados para experimentação reprodutível.
+
 
 ## Estrutura do Repositório
 
-O repositório está organizado em pastas, onde cada uma representa uma categoria de tarefa de NLP:
+Os datasets estão organizados por categoria de tarefa:
 
 ```
 /
@@ -13,57 +15,91 @@ O repositório está organizado em pastas, onde cada uma representa uma categori
 │   │   └── few_shot/
 │   ├── BrandsCorpus/
 │   │   └── few_shot/
-│   └── ReProCorpus/
+│   ├── BuscapeCorpus/
+│   │   └── few_shot/
+│   ├── KaggleTweetsCorpus/
+│   │   └── few_shot/
+│   ├── OlistCorpus/
+│   │   └── few_shot/
+│   ├── ReProCorpus/
+│   │   └── few_shot/
+│   └── UTLCorpus/
 │       └── few_shot/
 │
-├── analise_de_sentimentos/
-│   └── (em breve...)
-│
-├── classificacao_de_intencao/
-│   └── (em breve...)
-
+├── intent/
+│   ├── IntentPTCorpus/
+│   │   └── few_shot/
+│   └── CourtDecisionCorpus/
+│       └── few_shot/
 ```
+
 
 ## Datasets Disponíveis
 
-### Avaliações de Produtos e Serviços
 
-Datasets que contêm textos de avaliações de usuários sobre produtos e serviços, geralmente acompanhados de uma nota (ex: 1 a 5 estrelas). Ideal para tarefas de regressão ou classificação de sentimentos baseada em notas.
+## **Avaliações, Reviews e Análise de Sentimentos**
 
-  * **B2W Reviews Corpus**
+Datasets contendo textos avaliativos ou opiniões rotulados com **polaridade** (positivo/negativo). A maioria possui versões few-shot com 5 folds.
 
-      * **Descrição:** Um grande conjunto de avaliações de produtos do e-commerce brasileiro (Americanas, Submarino, etc.), extraído do dataset público da B2W. Contém o texto da avaliação, título e nota de 1 a 5 estrelas.
-      * **Formato:** Versões processadas em formato `few-shot` com 5 folds de validação cruzada.
-      * **Localização:** `[./reviews/B2WReviewsCorpus/](./reviews/B2WReviewsCorpus/)`
+### **B2W Reviews Corpus**
 
-  * **Brands Corpus**
+* **Descrição:** Avaliações de produtos de e-commerces brasileiros (Americanas, Submarino, Shoptime).
+* **Localização:** `./reviews/B2WReviewsCorpus/`
 
-      * **Descrição:** Dataset com avaliações de produtos focadas em marcas específicas. Inclui texto da avaliação, título e nota de 1 a 5 estrelas.
-      * **Formato:** Versões processadas em `few-shot` com 5 folds.
-      * **Localização:** `[./reviews/BrandsCorpus/](./reviews/BrandsCorpus/)`
+### **Brands Corpus**
 
-  * **RePro Corpus**
+* **Descrição:** Avaliações focadas em marcas específicas.
+* **Localização:** `./reviews/BrandsCorpus/`
 
-      * **Descrição:** Dataset de avaliações de produtos com foco em reviews que mencionam problemas ou elogios específicos sobre a experiência de compra.
-      * **Formato:** Versões processadas em `few-shot` com 5 folds.
-      * **Localização:** `[./reviews/ReProCorpus/](./reviews/ReProCorpus/)`
+### **Buscape Corpus**
+
+* **Descrição:** Reviews coletados da plataforma Buscapé, com notas e avaliações textuais.
+* **Localização:** `./reviews/BuscapeCorpus/`
+
+### **Kaggle Tweets Corpus**
+
+* **Descrição:** Tweets rotulados com polaridade positiva/negativa, versão adaptada para PT-BR.
+* **Localização:** `./reviews/KaggleTweetsCorpus/`
+
+### **Olist Corpus**
+
+* **Descrição:** Avaliações de clientes da base pública da Olist.
+* **Localização:** `./reviews/OlistCorpus/`
+
+### **RePro Corpus**
+
+* **Descrição:** Reviews com foco em elogios e problemas relatados durante a experiência de compra.
+* **Localização:** `./reviews/ReProCorpus/`
+
+### **UTL Corpus**
+
+* **Descrição:** Dataset de polaridade textual PT-BR amplamente usado em pesquisas.
+* **Localização:** `./sentiment/UTLCorpus/`
 
 
-### Análise de Sentimentos
+## **Classificação de Intenção**
 
-Essa categoria inclui datasets focados na classificação de polaridade (positivo, negativo, neutro) de textos diversos, que não se limitam a avaliações de produtos.
+Datasets para identificar a intenção do usuário em frases, diálogos ou documentos.
 
-  * *(Em breve...)*
+### **IntentPTCorpus**
 
+* **Descrição:** Corpus de intenções em PT-BR baseado no conjunto de dados da Amazon Alexa.
+* **Tarefas:** Identificação de intenções (ex.: comprar, solicitar, perguntar, elogiar).
+* **Localização:** `./intent/IntentPTCorpus/`
 
-### Classificação de Intenção
+### **CourtDecisionCorpus**
 
-Datasets para identificar a intenção do usuário em uma frase ou diálogo (ex: perguntar, comprar, reclamar, elogiar).
-
-  * *(Em breve...)*
+* **Descrição:** Corpus jurídico com classificações de intenção e decisão judicial.
+* **Tarefas:** Intenção/propósito de petições e documentos.
+* **Localização:** `./intent/CourtDecisionCorpus/`
 
 
 ## Como Usar
 
-Os datasets na pasta `few_shot` estão em formato JSON, prontos para serem carregados para treinamento e avaliação em frameworks de machine learning.
+Todos os datasets em `few_shot/` seguem o mesmo padrão:
 
+* Formato: **JSON**
+* Estrutura:
+
+  * `fold_1/`, `fold_2/`, ..., `fold_5/`
+  * Arquivos de treino, validação e teste padronizados
