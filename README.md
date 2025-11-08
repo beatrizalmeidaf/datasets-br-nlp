@@ -33,8 +33,10 @@ Os datasets estão organizados por categoria de tarefa:
 │       └── few_shot/
 │
 ├── hate/
-│   └── HateBRCorpus/
-│       └── few_shot/  
+│   ├── HateBRCorpus/
+│   │   └── few_shot/  
+│   └── TuPyCorpus/
+│       └── few_shot/     
 │
 ├── category/
 │   ├── MMLU_PTBR_Corpus/
@@ -116,6 +118,10 @@ Datasets destinados à detecção de toxicidade, ofensa e discurso de ódio.
 * **Descrição:** Corpus brasileiro focado em discurso de ódio e linguagem ofensiva.
 * **Localização:** `./hate/HateBRCorpus/`
 
+### TuPyCorpus
+
+* **Descrição:** Corpus brasileiro focado em discurso de ódio e linguagem ofensiva.
+* **Localização:** `./hate/TuPy/`
 
 
 ## Classificação Geral por Categorias
