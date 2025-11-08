@@ -74,7 +74,7 @@ Datasets contendo textos avaliativos ou opiniões rotulados com **polaridade** (
 ### **UTL Corpus**
 
 * **Descrição:** Dataset de polaridade textual PT-BR amplamente usado em pesquisas.
-* **Localização:** `./sentiment/UTLCorpus/`
+* **Localização:** `./reviews/UTLCorpus/`
 
 
 ## **Classificação de Intenção**
