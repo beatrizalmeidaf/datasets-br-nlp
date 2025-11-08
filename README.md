@@ -41,7 +41,7 @@ Os datasets estão organizados por categoria de tarefa:
 ├── category/
 │   ├── MMLU_PTBR_Corpus/
 │   │   └── few_shot/  
-│   ├── RecognasaumCorpus/
+│   ├── RecognasummCorpus/
 │   │   └── few_shot/   
 │   └── RulingBRCorpus/
 │       └── few_shot/  
@@ -139,7 +139,7 @@ Datasets destinados a tarefas amplas de classificação multi-classe.
 ### RecognasaumCorpus
 
 * **Descrição:** Dataset de classificação geral envolvendo múltiplas categorias temáticas.
-* **Localização:** `./category/RecognasaumCorpus/`
+* **Localização:** `./category/RecognasummCorpus/`
 
 ### RulingBRCorpus
 
@@ -156,5 +156,14 @@ Todos os datasets em `few_shot/` seguem o mesmo padrão:
 * Estrutura:
 
   * `fold_1/`, `fold_2/`, ..., `fold_5/`
-  * Arquivos de treino, validação e teste padronizados
+  * Cada fold contém os mesmos exemplos embaralhados em diferentes divisões de treino/validação/teste, permitindo avaliação robusta e comparável entre experimentos.
 
+### Uso no Dataloader
+
+Os datasets few_shot/ contêm todo o conjunto completo de exemplos.
+A escolha do número de amostras (k-shot) deve ser feita no código de carregamento (dataloader), e não duplicando dados no disco.
+
+Isso garante:
+- Reprodutibilidade entre experimentos
+- Menos redundância
+- Maior compatibilidade entre benchmarks
