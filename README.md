@@ -31,67 +31,106 @@ Os datasets estão organizados por categoria de tarefa:
 │   │   └── few_shot/
 │   └── CourtDecisionCorpus/
 │       └── few_shot/
+│
+├── hate/
+│   └── HateBRCorpus/
+│       └── few_shot/  
+│
+├── category/
+│   ├── MMLU_PTBR_Corpus/
+│   │   └── few_shot/  
+│   └── RecognasaumCorpus/
+│       └── few_shot/   
 ```
 
 
 ## Datasets Disponíveis
 
 
-## **Avaliações, Reviews e Análise de Sentimentos**
+## Avaliações, Reviews e Análise de Sentimentos
 
-Datasets contendo textos avaliativos ou opiniões rotulados com **polaridade** (positivo/negativo). A maioria possui versões few-shot com 5 folds.
+Datasets contendo textos avaliativos ou opiniões rotulados com **polaridade** (positivo/negativo).
+A maioria possui versões few-shot com 5 folds.
 
-### **B2W Reviews Corpus**
+### B2W Reviews Corpus
 
 * **Descrição:** Avaliações de produtos de e-commerces brasileiros (Americanas, Submarino, Shoptime).
 * **Localização:** `./reviews/B2WReviewsCorpus/`
 
-### **Brands Corpus**
+### Brands Corpus
 
 * **Descrição:** Avaliações focadas em marcas específicas.
 * **Localização:** `./reviews/BrandsCorpus/`
 
-### **Buscape Corpus**
+### Buscape Corpus
 
 * **Descrição:** Reviews coletados da plataforma Buscapé, com notas e avaliações textuais.
 * **Localização:** `./reviews/BuscapeCorpus/`
 
-### **Kaggle Tweets Corpus**
+### Kaggle Tweets Corpus
 
 * **Descrição:** Tweets rotulados com polaridade positiva/negativa, versão adaptada para PT-BR.
 * **Localização:** `./reviews/KaggleTweetsCorpus/`
 
-### **Olist Corpus**
+### Olist Corpus
 
 * **Descrição:** Avaliações de clientes da base pública da Olist.
 * **Localização:** `./reviews/OlistCorpus/`
 
-### **RePro Corpus**
+### RePro Corpus
 
 * **Descrição:** Reviews com foco em elogios e problemas relatados durante a experiência de compra.
 * **Localização:** `./reviews/ReProCorpus/`
 
-### **UTL Corpus**
+### UTL Corpus
 
 * **Descrição:** Dataset de polaridade textual PT-BR amplamente usado em pesquisas.
 * **Localização:** `./reviews/UTLCorpus/`
 
 
-## **Classificação de Intenção**
+
+## Classificação de Intenção
 
 Datasets para identificar a intenção do usuário em frases, diálogos ou documentos.
 
-### **IntentPTCorpus**
+### IntentPTCorpus
 
 * **Descrição:** Corpus de intenções em PT-BR baseado no conjunto de dados da Amazon Alexa.
 * **Tarefas:** Identificação de intenções (ex.: comprar, solicitar, perguntar, elogiar).
 * **Localização:** `./intent/IntentPTCorpus/`
 
-### **CourtDecisionCorpus**
+### CourtDecisionCorpus
 
 * **Descrição:** Corpus jurídico com classificações de intenção e decisão judicial.
 * **Tarefas:** Intenção/propósito de petições e documentos.
 * **Localização:** `./intent/CourtDecisionCorpus/`
+
+
+
+## Detecção de Discurso de Ódio
+
+Datasets destinados à detecção de toxicidade, ofensa e discurso de ódio.
+
+### HateBRCorpus
+
+* **Descrição:** Corpus brasileiro focado em discurso de ódio e linguagem ofensiva.
+* **Localização:** `./hate/HateBRCorpus/`
+
+
+
+## Classificação Geral por Categorias
+
+Datasets destinados a tarefas amplas de classificação multi-classe.
+
+### MMLU_PTBR_Corpus
+
+* **Descrição:** Versão em português brasileiro do benchmark MMLU, cobrindo diversas áreas de conhecimento.
+* **Localização:** `./category/MMLU_PTBR_Corpus/`
+
+### RecognasaumCorpus
+
+* **Descrição:** Dataset de classificação geral envolvendo múltiplas categorias temáticas.
+* **Localização:** `./category/RecognasaumCorpus/`
 
 
 ## Como Usar
@@ -103,3 +142,4 @@ Todos os datasets em `few_shot/` seguem o mesmo padrão:
 
   * `fold_1/`, `fold_2/`, ..., `fold_5/`
   * Arquivos de treino, validação e teste padronizados
+
