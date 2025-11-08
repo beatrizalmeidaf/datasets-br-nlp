@@ -41,8 +41,10 @@ Os datasets estão organizados por categoria de tarefa:
 ├── category/
 │   ├── MMLU_PTBR_Corpus/
 │   │   └── few_shot/  
-│   └── RecognasaumCorpus/
-│       └── few_shot/   
+│   ├── RecognasaumCorpus/
+│   │   └── few_shot/   
+│   └── RulingBRCorpus/
+│       └── few_shot/  
 ```
 
 
@@ -124,6 +126,7 @@ Datasets destinados à detecção de toxicidade, ofensa e discurso de ódio.
 * **Localização:** `./hate/TuPy/`
 
 
+
 ## Classificação Geral por Categorias
 
 Datasets destinados a tarefas amplas de classificação multi-classe.
@@ -137,6 +140,12 @@ Datasets destinados a tarefas amplas de classificação multi-classe.
 
 * **Descrição:** Dataset de classificação geral envolvendo múltiplas categorias temáticas.
 * **Localização:** `./category/RecognasaumCorpus/`
+
+### RulingBRCorpus
+
+* **Descrição:** Conjunto de decisões judiciais brasileiras estruturadas, adequado para tarefas de classificação jurídica supervisionada.
+* **Localização:** `./category/RulingBRCorpus/` 
+
 
 
 ## Como Usar
