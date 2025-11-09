@@ -143,7 +143,7 @@ A maioria possui versões few-shot com 5 folds.
 
 * **Descrição:** Dataset de classificação com base em avaliações de lugares em PT-BR.
 * **Localização:** `./category/EniacCorpus/`
-* 
+   
 ### MMLU_PTBR_Corpus
 
 * **Descrição:** Versão em português brasileiro do benchmark MMLU, cobrindo diversas áreas do conhecimento.
