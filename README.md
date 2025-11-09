@@ -41,6 +41,8 @@ Os datasets estão organizados por categoria de tarefa:
 │       └── few_shot/     
 │
 ├── category/
+│   ├── EniacCorpus/
+│   │   └── few_shot/ 
 │   ├── MMLU_PTBR_Corpus/
 │   │   └── few_shot/  
 │   ├── RecognasummCorpus/
@@ -137,6 +139,11 @@ A maioria possui versões few-shot com 5 folds.
 
 ## Classificação Geral por Categorias
 
+### EniacCorpus
+
+* **Descrição:** Dataset de classificação com base em avaliações de lugares em PT-BR.
+* **Localização:** `./category/EniacCorpus/`
+* 
 ### MMLU_PTBR_Corpus
 
 * **Descrição:** Versão em português brasileiro do benchmark MMLU, cobrindo diversas áreas do conhecimento.
