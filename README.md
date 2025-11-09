@@ -3,13 +3,15 @@
 Esse repositório reúne uma coleção curada de **datasets para Processamento de Linguagem Natural (PLN)** focados no **português brasileiro**.
 O objetivo é centralizar recursos, facilitar o acesso e disponibilizar versões processadas para **cenários de Few-shot Learning**, com folds padronizados para experimentação reprodutível.
 
-
 ## Estrutura do Repositório
 
 Os datasets estão organizados por categoria de tarefa:
 
 ```
 /
+├── raw_data/
+│   ├── ... (arquivos originais e códigos utilizados para pré-processamento)
+│
 ├── reviews/
 │   ├── B2WReviewsCorpus/
 │   │   └── few_shot/
@@ -47,11 +49,21 @@ Os datasets estão organizados por categoria de tarefa:
 │       └── few_shot/  
 ```
 
+## Sobre a pasta `raw_data`
+
+A pasta `raw_data/` contém todos os datasets em seus formatos brutos, exatamente como foram extraídos das fontes originais.
+Dentro dela também estão incluídos todos os scripts utilizados para limpeza, normalização e transformação dos dados até chegarem às versões padronizadas disponibilizadas nas demais pastas do repositório.
+
+Isso garante transparência total e permite que qualquer pessoa:
+
+* Reproduza o pré-processamento;
+* Adapte os scripts para suas próprias pesquisas;
+* Verifique a integridade dos dados originais.
+
 
 ## Datasets Disponíveis
 
-
-## Avaliações, Reviews e Análise de Sentimentos
+### Avaliações, Reviews e Análise de Sentimentos
 
 Datasets contendo textos avaliativos ou opiniões rotulados com **polaridade** (positivo/negativo).
 A maioria possui versões few-shot com 5 folds.
@@ -95,12 +107,10 @@ A maioria possui versões few-shot com 5 folds.
 
 ## Classificação de Intenção
 
-Datasets para identificar a intenção do usuário em frases, diálogos ou documentos.
-
 ### IntentPTCorpus
 
 * **Descrição:** Corpus de intenções em PT-BR baseado no conjunto de dados da Amazon Alexa.
-* **Tarefas:** Identificação de intenções (ex.: comprar, solicitar, perguntar, elogiar).
+* **Tarefas:** Identificação de intenções (como comprar, solicitar, perguntar, elogiar).
 * **Localização:** `./intent/IntentPTCorpus/`
 
 ### CourtDecisionCorpus
@@ -112,8 +122,6 @@ Datasets para identificar a intenção do usuário em frases, diálogos ou docum
 
 
 ## Detecção de Discurso de Ódio
-
-Datasets destinados à detecção de toxicidade, ofensa e discurso de ódio.
 
 ### HateBRCorpus
 
@@ -129,14 +137,12 @@ Datasets destinados à detecção de toxicidade, ofensa e discurso de ódio.
 
 ## Classificação Geral por Categorias
 
-Datasets destinados a tarefas amplas de classificação multi-classe.
-
 ### MMLU_PTBR_Corpus
 
-* **Descrição:** Versão em português brasileiro do benchmark MMLU, cobrindo diversas áreas de conhecimento.
+* **Descrição:** Versão em português brasileiro do benchmark MMLU, cobrindo diversas áreas do conhecimento.
 * **Localização:** `./category/MMLU_PTBR_Corpus/`
 
-### RecognasaumCorpus
+### RecognasummCorpus
 
 * **Descrição:** Dataset de classificação geral envolvendo múltiplas categorias temáticas.
 * **Localização:** `./category/RecognasummCorpus/`
@@ -144,7 +150,7 @@ Datasets destinados a tarefas amplas de classificação multi-classe.
 ### RulingBRCorpus
 
 * **Descrição:** Conjunto de decisões judiciais brasileiras estruturadas, adequado para tarefas de classificação jurídica supervisionada.
-* **Localização:** `./category/RulingBRCorpus/` 
+* **Localização:** `./category/RulingBRCorpus/`
 
 
 
@@ -156,14 +162,13 @@ Todos os datasets em `few_shot/` seguem o mesmo padrão:
 * Estrutura:
 
   * `fold_1/`, `fold_2/`, ..., `fold_5/`
-  * Cada fold contém os mesmos exemplos embaralhados em diferentes divisões de treino/validação/teste, permitindo avaliação robusta e comparável entre experimentos.
+  * Cada fold contém os mesmos exemplos embaralhados em diferentes divisões de treino/validação/teste.
 
 ### Uso no Dataloader
 
-Os datasets few_shot/ contêm todo o conjunto completo de exemplos.
-A escolha do número de amostras (k-shot) deve ser feita no código de carregamento (dataloader), e não duplicando dados no disco.
+Os datasets em `few_shot/` contêm o conjunto completo de exemplos.
+A escolha do número de amostras (k-shot) deve ser feita no código de carregamento, garantindo:
 
-Isso garante:
-- Reprodutibilidade entre experimentos
-- Menos redundância
-- Maior compatibilidade entre benchmarks
+* Reprodutibilidade
+* Menos redundância
+* Maior compatibilidade entre benchmarks
