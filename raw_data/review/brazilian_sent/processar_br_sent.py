@@ -12,8 +12,8 @@ LABEL_MAP = {
 VALID_LABELS = list(LABEL_MAP.keys())
 
 INPUT_TEXT_COLUMN = 'review_text'
-FINAL_TEXT_COLUMN = 'sentence'
-OUTPUT_BASE_DIR = "data"
+FINAL_TEXT_COLUMN = 'text'
+OUTPUT_BASE_DIR = r"d:\datasets-br\datasets-br\reviews"
 NUM_FOLDS = 5
 RANDOM_SEED = 42
 
@@ -99,7 +99,7 @@ def process_single_dataset(input_file, dataset_name, label_column):
     df_shuffled = df_deduplicated.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
 
     print(f"Dividindo os dados únicos em {NUM_FOLDS} folds...")
-    folds = np.array_split(df_shuffled, NUM_FOLDS)
+    folds = [df_shuffled.iloc[idx] for idx in np.array_split(range(len(df_shuffled)), NUM_FOLDS)]
 
     output_root = Path(OUTPUT_BASE_DIR) / dataset_name / "few_shot"
     print(f"Preparando pasta de saída: {output_root}")
@@ -120,9 +120,9 @@ def process_single_dataset(input_file, dataset_name, label_column):
 
         print(f"Tamanhos: Treino={len(df_train)}, Validação={len(df_valid)}, Teste={len(df_test)}")
 
-        save_json_pool(df_train, output_path / "train.json", label_column)
-        save_json_pool(df_valid, output_path / "valid.json", label_column)
-        save_json_pool(df_test, output_path / "test.json", label_column)
+        save_json_pool(df_train, output_path / "train.jsonl", label_column)
+        save_json_pool(df_valid, output_path / "valid.jsonl", label_column)
+        save_json_pool(df_test, output_path / "test.jsonl", label_column)
 
     print(f"\nPROCESSO CONCLUÍDO PARA: {dataset_name}")
 

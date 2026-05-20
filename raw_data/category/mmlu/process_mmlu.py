@@ -1,5 +1,5 @@
 """
-curl -L -o mmlu_PT-BR.csv https://huggingface.co/datasets/openai/MMMLU/resolve/main/test/mmlu_PT-BR.csv
+curl -L -o mmlu_PT-BR.csv https://huggingface.co/datasets/openai/MMMLU/resolve/main/train/mmlu_PT-BR.csv
 """
 
 import pandas as pd
@@ -13,10 +13,10 @@ INPUT_FILE_PATH = "mmlu_PT-BR.csv"
 INPUT_TEXT_COLUMN = 'Question'
 INPUT_LABEL_COLUMN = 'Subject'
 
-FINAL_TEXT_COLUMN = 'sentence'
+FINAL_TEXT_COLUMN = 'text'
 FINAL_LABEL_COLUMN = 'label'
 
-OUTPUT_BASE_DIR = "data"
+OUTPUT_BASE_DIR = r"d:\datasets-br\datasets-br\category"
 DATASET_NAME = "MMLU_PTBR_Corpus"
 NUM_FOLDS = 5
 RANDOM_SEED = 42
@@ -88,11 +88,11 @@ def load_data_from_csv(file_path):
     """
     print(f"Carregando dados do arquivo CSV: '{file_path}'...")
     try:
-        df = pd.read_csv(file_path, sep='\t')
+        df = pd.read_csv(file_path, sep=',')
     except Exception:
-        print("Aviso: Falha ao ler com TAB")
+        print("Aviso: Falha ao ler com vírgula")
         try:
-            df = pd.read_csv(file_path, sep=',')
+            df = pd.read_csv(file_path, sep='\t')
         except FileNotFoundError:
             print(f"ERRO: O arquivo '{file_path}' não foi encontrado.")
             return None
@@ -163,7 +163,7 @@ def main():
     df_shuffled = df_deduplicated.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
 
     print(f"Dividindo os dados únicos em {NUM_FOLDS} folds...")
-    folds = np.array_split(df_shuffled, NUM_FOLDS)
+    folds = [df_shuffled.iloc[idx] for idx in np.array_split(range(len(df_shuffled)), NUM_FOLDS)]
 
     output_root = Path(OUTPUT_BASE_DIR) / DATASET_NAME / "few_shot"
 
@@ -185,9 +185,9 @@ def main():
         print(f"Tamanhos para o Fold {fold_name}: Treino={len(df_train)}, Validação={len(df_valid)}, Teste={len(df_test)}")
 
         print("Salvando pools de dados (.jsonl)...")
-        save_json_pool(df_train, output_path / "train.json")
-        save_json_pool(df_valid, output_path / "valid.json")
-        save_json_pool(df_test, output_path / "test.json")
+        save_json_pool(df_train, output_path / "train.jsonl")
+        save_json_pool(df_valid, output_path / "valid.jsonl")
+        save_json_pool(df_test, output_path / "test.jsonl")
 
     print(f"\nPROCESSO CONCLUÍDO! {NUM_FOLDS} folds de validação cruzada foram criados em '{output_root}'")
 

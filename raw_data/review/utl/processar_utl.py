@@ -9,19 +9,21 @@ from pathlib import Path
 import numpy as np
 
 LABELED_DATA_DIR = Path("files/labeled") 
-INPUT_FILES = [
+TRAIN_DEV_FILES = [
     "train_apps.pkl", "train_filmes.pkl",
-    "dev_apps.pkl", "dev_filmes.pkl",
+    "dev_apps.pkl", "dev_filmes.pkl"
+]
+TEST_FILES = [
     "test_apps.pkl", "test_filmes.pkl"
 ]
 
 INPUT_TEXT_COLUMN = 'text'
-INPUT_LABEL_COLUMN = 'label'
+INPUT_LABEL_COLUMN = 'stars'
+FINAL_TEXT_COLUMN = 'text'
 
-FINAL_TEXT_COLUMN = 'sentence'
-
-OUTPUT_BASE_DIR = "data"
+# Mapeamento do UTL (estrelas 1 e 2 = negativo, 4 e 5 = positivo, descartar 3)"
 DATASET_NAME = "UTLCorpus" 
+OUTPUT_BASE_DIR = r"d:\datasets-br\datasets-br\reviews"
 NUM_FOLDS = 5
 RANDOM_SEED = 42
 
@@ -106,21 +108,24 @@ def main():
     Função principal que orquestra a criação dos folds de validação cruzada.
     """
     
-    full_df = load_and_merge_pkls(LABELED_DATA_DIR, INPUT_FILES)
-    if full_df is None:
+    df_train_dev = load_and_merge_pkls(LABELED_DATA_DIR, TRAIN_DEV_FILES)
+    df_test_static = load_and_merge_pkls(LABELED_DATA_DIR, TEST_FILES)
+    
+    if df_train_dev is None or df_test_static is None:
         return
 
-    print(f"\nTotal de amostras antes da deduplicação: {len(full_df)}")
-    df_deduplicated = full_df.drop_duplicates(subset=[FINAL_TEXT_COLUMN]).reset_index(drop=True)
-    removidas = len(full_df) - len(df_deduplicated)
-    print(f"Total de amostras únicas (após deduplicação): {len(df_deduplicated)} (removidas {removidas} duplicatas)")
+    print(f"\nTotal de amostras train/dev antes da deduplicação: {len(df_train_dev)}")
+    df_train_dev_dedup = df_train_dev.drop_duplicates(subset=[FINAL_TEXT_COLUMN]).reset_index(drop=True)
+    removidas = len(df_train_dev) - len(df_train_dev_dedup)
+    print(f"Total de amostras únicas train/dev (após deduplicação): {len(df_train_dev_dedup)} (removidas {removidas} duplicatas)")
 
-    print(f"\nEmbaralhando o dataset único com a semente {RANDOM_SEED}...")
-    
-    df_shuffled = df_deduplicated.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
+    df_test_dedup = df_test_static.drop_duplicates(subset=[FINAL_TEXT_COLUMN]).reset_index(drop=True)
 
-    print(f"Dividindo os dados únicos em {NUM_FOLDS} folds...")
-    folds = np.array_split(df_shuffled, NUM_FOLDS)
+    print(f"\nEmbaralhando o dataset de treino/validação com a semente {RANDOM_SEED}...")
+    df_shuffled = df_train_dev_dedup.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
+
+    print(f"Dividindo os dados de treino/validação em {NUM_FOLDS} folds...")
+    folds = [df_shuffled.iloc[idx] for idx in np.array_split(range(len(df_shuffled)), NUM_FOLDS)]
 
     output_root = Path(OUTPUT_BASE_DIR) / DATASET_NAME / "few_shot"
 
@@ -133,18 +138,18 @@ def main():
             shutil.rmtree(output_path)
         output_path.mkdir(parents=True, exist_ok=True)
 
-        df_test = folds[i].reset_index(drop=True)
-        df_valid = folds[(i + 1) % NUM_FOLDS].reset_index(drop=True)
-        train_folds_indices = [j for j in range(NUM_FOLDS) if j != i and j != (i + 1) % NUM_FOLDS]
+        df_valid = folds[i].reset_index(drop=True)
+        train_folds_indices = [j for j in range(NUM_FOLDS) if j != i]
         df_train = pd.concat([folds[j] for j in train_folds_indices]).reset_index(drop=True)
+        df_test = df_test_dedup.copy()
 
         print(f"Tamanhos para o Fold {fold_name}: Treino={len(df_train)}, Validação={len(df_valid)}, Teste={len(df_test)}")
 
         print("Salvando pools de dados (.jsonl)...")
 
-        save_json_pool(df_train, output_path / "train.json")
-        save_json_pool(df_valid, output_path / "valid.json")
-        save_json_pool(df_test, output_path / "test.json")
+        save_json_pool(df_train, output_path / "train.jsonl")
+        save_json_pool(df_valid, output_path / "valid.jsonl")
+        save_json_pool(df_test, output_path / "test.jsonl")
 
     print(f"\nPROCESSO CONCLUÍDO! {NUM_FOLDS} folds de validação cruzada foram criados em '{output_root}'")
 

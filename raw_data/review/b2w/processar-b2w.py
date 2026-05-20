@@ -12,7 +12,7 @@ INPUT_LABEL_COLUMN = 'overall_rating'
 
 FINAL_TEXT_COLUMN = 'text'
 
-OUTPUT_BASE_DIR = "data"
+OUTPUT_BASE_DIR = r"d:\datasets-br\datasets-br\reviews"
 DATASET_NAME = "B2WReviewsCorpus"
 NUM_FOLDS = 5
 RANDOM_SEED = 42
@@ -83,7 +83,7 @@ def main():
     df_shuffled = df_renamed.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
 
     print(f"Dividindo os dados únicos em {NUM_FOLDS} folds...")
-    folds = np.array_split(df_shuffled, NUM_FOLDS)
+    folds = [df_shuffled.iloc[idx] for idx in np.array_split(range(len(df_shuffled)), NUM_FOLDS)]
 
     output_root = Path(OUTPUT_BASE_DIR) / DATASET_NAME / "few_shot"
 
@@ -103,11 +103,11 @@ def main():
 
         print(f"Tamanhos para o Fold {fold_name}: Treino={len(df_train)}, Validação={len(df_valid)}, Teste={len(df_test)}")
 
-        print("Salvando pools de dados (.json)...")
+        print("Salvando pools de dados (.jsonl)...")
 
-        save_json_pool(df_train, output_path / "train.json")
-        save_json_pool(df_valid, output_path / "valid.json")
-        save_json_pool(df_test, output_path / "test.json")
+        save_json_pool(df_train, output_path / "train.jsonl")
+        save_json_pool(df_valid, output_path / "valid.jsonl")
+        save_json_pool(df_test, output_path / "test.jsonl")
 
     print(f"\nPROCESSO CONCLUÍDO! {NUM_FOLDS} folds de validação cruzada foram criados em '{output_root}'")
 
