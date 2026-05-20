@@ -7,16 +7,37 @@ echo "Iniciando limpeza e processamento de datasets..."
 
 ROOT_DIR=$(pwd)
 
-echo "Limpando todos os arquivos .json e .jsonl antigos..."
-# Encontra todas as pastas data dentro de raw_data e remove json/jsonl
-find "$ROOT_DIR/raw_data" -type f \( -name "*.json" -o -name "*.jsonl" \) -delete 2>/dev/null
+echo "Limpando todos os arquivos .json e .jsonl antigos nos diretórios de output..."
 for d in "data" "category" "hate" "intent" "reviews"; do
-    find "$ROOT_DIR/$d" -type f \( -name "*.json" -o -name "*.jsonl" \) -delete 2>/dev/null
+    if [ -d "$ROOT_DIR/$d" ]; then
+        find "$ROOT_DIR/$d" -type f \( -name "*.json" -o -name "*.jsonl" \) -delete 2>/dev/null
+    fi
 done
 
-echo "=========================================================="
-echo "Instalando dependências necessárias..."
-pip install tqdm
+# Detectar comando Python
+if command -v python3 &>/dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &>/dev/null; then
+    PYTHON_CMD="python"
+else
+    echo "Erro: Python não encontrado. Instale o Python para rodar os pipelines."
+    exit 1
+fi
+
+# Detectar comando Pip
+if command -v pip3 &>/dev/null; then
+    PIP_CMD="pip3"
+elif command -v pip &>/dev/null; then
+    PIP_CMD="pip"
+else
+    PIP_CMD=""
+fi
+
+if [ -n "$PIP_CMD" ]; then
+    echo "=========================================================="
+    echo "Instalando dependências necessárias..."
+    $PIP_CMD install --break-system-packages tqdm pandas numpy || $PIP_CMD install tqdm pandas numpy || echo "Aviso: Falha ao instalar dependências com pip."
+fi
 
 echo "=========================================================="
 echo "Verificando e baixando datasets pendentes..."
@@ -33,7 +54,7 @@ cd "$ROOT_DIR" || exit
 echo "=========================================================="
 echo "Executando scripts de processamento..."
 
-find "$ROOT_DIR/raw_data" -type f -name "process*.py" | while read script; do
+find "$ROOT_DIR/raw_data" -type f \( -name "process*.py" -o -name "processar*.py" \) | while read script; do
     script_dir=$(dirname "$script")
     script_name=$(basename "$script")
     
@@ -42,7 +63,7 @@ find "$ROOT_DIR/raw_data" -type f -name "process*.py" | while read script; do
     cd "$script_dir" || continue
     
     echo "Executando $script_name..."
-    python "$script_name"
+    "$PYTHON_CMD" "$script_name"
     
     cd "$ROOT_DIR"
 done

@@ -12,7 +12,7 @@ CSV_LABEL_COLUMN = 'overall_rating'
 
 FINAL_TEXT_COLUMN = 'text'
 
-OUTPUT_BASE_DIR = r"d:\datasets-br\datasets-br\reviews"
+OUTPUT_BASE_DIR = str(Path(__file__).resolve().parents[3] / "reviews")
 DATASET_NAME = "ReProCorpus"
 NUM_FOLDS = 5
 RANDOM_SEED = 42
@@ -107,7 +107,10 @@ def main():
         
         output_path = output_root / fold_name
         if output_path.exists():
-            shutil.rmtree(output_path)
+            try:
+                shutil.rmtree(output_path)
+            except Exception as e:
+                print(f"Aviso: Falha ao remover {output_path}: {e}")
         output_path.mkdir(parents=True, exist_ok=True)
 
         df_test = folds[i].reset_index(drop=True)

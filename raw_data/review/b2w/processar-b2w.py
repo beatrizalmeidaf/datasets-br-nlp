@@ -12,10 +12,18 @@ INPUT_LABEL_COLUMN = 'overall_rating'
 
 FINAL_TEXT_COLUMN = 'text'
 
-OUTPUT_BASE_DIR = r"d:\datasets-br\datasets-br\reviews"
+OUTPUT_BASE_DIR = str(Path(__file__).resolve().parents[3] / "reviews")
 DATASET_NAME = "B2WReviewsCorpus"
 NUM_FOLDS = 5
 RANDOM_SEED = 42
+LABEL_MAP = {
+    1: "Negativo",
+    2: "Negativo",
+    4: "Positivo",
+    5: "Positivo"
+}
+
+VALID_LABELS = list(LABEL_MAP.keys())
 
 
 def load_data_from_csv(file_path):
@@ -43,6 +51,11 @@ def load_data_from_csv(file_path):
     df.dropna(subset=[FINAL_TEXT_COLUMN, INPUT_LABEL_COLUMN], inplace=True)
     
     df[INPUT_LABEL_COLUMN] = df[INPUT_LABEL_COLUMN].astype(int)
+
+    df = df[df[INPUT_LABEL_COLUMN].isin(VALID_LABELS)].copy()
+
+    print("Traduzindo labels para o formato descritivo...")
+    df[INPUT_LABEL_COLUMN] = df[INPUT_LABEL_COLUMN].map(LABEL_MAP)
 
     clean_df = df[[FINAL_TEXT_COLUMN, INPUT_LABEL_COLUMN]].copy()
 
@@ -78,9 +91,9 @@ def main():
 
     print(f"\nEmbaralhando o dataset único com a semente {RANDOM_SEED}...")
 
-    df_renamed = df_deduplicated.rename(columns={FINAL_TEXT_COLUMN: 'text'}) 
-    
-    df_shuffled = df_renamed.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
+
+    df_shuffled = df_deduplicated.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
+
 
     print(f"Dividindo os dados únicos em {NUM_FOLDS} folds...")
     folds = [df_shuffled.iloc[idx] for idx in np.array_split(range(len(df_shuffled)), NUM_FOLDS)]
@@ -93,7 +106,10 @@ def main():
         
         output_path = output_root / fold_name
         if output_path.exists():
-            shutil.rmtree(output_path)
+            try:
+                shutil.rmtree(output_path)
+            except Exception as e:
+                print(f"Aviso: Falha ao remover {output_path}: {e}")
         output_path.mkdir(parents=True, exist_ok=True)
 
         df_test = folds[i].reset_index(drop=True)

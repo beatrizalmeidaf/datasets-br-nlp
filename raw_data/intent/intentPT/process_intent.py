@@ -1,88 +1,145 @@
-import pandas as pd
+"""
+Fonte: AmazonScience/massive (HuggingFace/Amazon S3) — locale pt-PT
+https://huggingface.co/datasets/AmazonScience/massive
+
+O script baixa automaticamente o dataset compactado do Amazon S3,
+extrai o arquivo 'pt-PT.jsonl', junta os dados, deduplica por texto,
+embaralha e gera 5 folds de validação cruzada.
+"""
+
 import json
 import shutil
+import urllib.request
+import tarfile
 from pathlib import Path
 import numpy as np
+import pandas as pd
 
-INPUT_FILE_PATH = "intent-pt.jsonl"
+# ---------------------------------------------------------------------------
+# Configuração
+# ---------------------------------------------------------------------------
 
-INPUT_TEXT_COLUMN = 'utt'
-INPUT_LABEL_COLUMN = 'intent'
+INPUT_TEXT_COLUMN  = "utt"
+INPUT_LABEL_COLUMN = "intent"
 
-FINAL_TEXT_COLUMN = 'text'
-FINAL_LABEL_COLUMN = 'label'
+FINAL_TEXT_COLUMN  = "text"
+FINAL_LABEL_COLUMN = "label"
 
-OUTPUT_BASE_DIR = r"d:\datasets-br\datasets-br\intent"
-DATASET_NAME = "IntentPTCorpus"
-NUM_FOLDS = 5
-RANDOM_SEED = 42
+OUTPUT_BASE_DIR = str(Path(__file__).resolve().parents[3] / "intent")
+DATASET_NAME    = "IntentPTCorpus"
+NUM_FOLDS       = 5
+RANDOM_SEED     = 42
 
-
+# Mapeamento dos 60 intents para PT-BR
 LABEL_MAP = {
-    "alarm_query": "consultar alarme",
-    "alarm_remove": "remover alarme",
-    "alarm_set": "definir alarme",
-    "audio_volume_down": "diminuir volume",
-    "audio_volume_mute": "silenciar áudio",
-    "audio_volume_other": "controlar áudio",
-    "audio_volume_up": "aumentar volume",
-    "calendar_query": "consultar agenda",
-    "calendar_remove": "remover evento da agenda",
-    "calendar_set": "adicionar evento na agenda",
-    "cooking_query": "buscar sobre culinária",
-    "cooking_recipe": "buscar receita",
-    "datetime_convert": "converter data ou hora",
-    "datetime_query": "consultar data ou hora",
-    "email_addcontact": "adicionar contato",
-    "email_query": "consultar emails",
-    "email_querycontact": "consultar contato",
-    "email_sendemail": "enviar email",
-    "general_greet": "saudação",
-    "general_joke": "pedir piada",
-    "general_quirky": "conversa aleatória",
-    "iot_cleaning": "ativar limpeza",
-    "iot_coffee": "preparar café",
-    "iot_hue_lightchange": "mudar cor da luz",
-    "iot_hue_lightdim": "diminuir brilho da luz",
-    "iot_hue_lightoff": "apagar luz",
-    "iot_hue_lighton": "acender luz",
-    "iot_hue_lightup": "aumentar brilho da luz",
-    "iot_wemo_off": "desligar dispositivo",
-    "iot_wemo_on": "ligar dispositivo",
-    "lists_createoradd": "criar ou adicionar à lista",
-    "lists_query": "consultar lista",
-    "lists_remove": "remover da lista",
-    "music_dislikeness": "indicar 'não gostei' da música",
-    "music_likeness": "indicar 'gostei' da música",
-    "music_query": "consultar música",
-    "music_settings": "configurar música",
-    "news_query": "buscar notícias",
-    "play_audiobook": "tocar audiolivro",
-    "play_game": "jogar",
-    "play_music": "tocar música",
-    "play_podcasts": "tocar podcast",
-    "play_radio": "tocar rádio",
-    "qa_currency": "perguntar sobre câmbio",
-    "qa_definition": "pedir definição",
-    "qa_factoid": "perguntar fato ou curiosidade",
-    "qa_maths": "perguntar matemática",
-    "qa_stock": "perguntar sobre ações da bolsa",
-    "recommendation_events": "recomendar eventos",
+    "alarm_query":              "consultar alarme",
+    "alarm_remove":             "remover alarme",
+    "alarm_set":                "definir alarme",
+    "audio_volume_down":        "diminuir volume",
+    "audio_volume_mute":        "silenciar áudio",
+    "audio_volume_other":       "controlar áudio",
+    "audio_volume_up":          "aumentar volume",
+    "calendar_query":           "consultar agenda",
+    "calendar_remove":          "remover evento da agenda",
+    "calendar_set":             "adicionar evento na agenda",
+    "cooking_query":            "buscar sobre culinária",
+    "cooking_recipe":           "buscar receita",
+    "datetime_convert":         "converter data ou hora",
+    "datetime_query":           "consultar data ou hora",
+    "email_addcontact":         "adicionar contato",
+    "email_query":              "consultar emails",
+    "email_querycontact":       "consultar contato",
+    "email_sendemail":          "enviar email",
+    "general_greet":            "saudação",
+    "general_joke":             "pedir piada",
+    "general_quirky":           "conversa aleatória",
+    "iot_cleaning":             "ativar limpeza",
+    "iot_coffee":               "preparar café",
+    "iot_hue_lightchange":      "mudar cor da luz",
+    "iot_hue_lightdim":         "diminuir brilho da luz",
+    "iot_hue_lightoff":         "apagar luz",
+    "iot_hue_lighton":          "acender luz",
+    "iot_hue_lightup":          "aumentar brilho da luz",
+    "iot_wemo_off":             "desligar dispositivo",
+    "iot_wemo_on":              "ligar dispositivo",
+    "lists_createoradd":        "criar ou adicionar à lista",
+    "lists_query":              "consultar lista",
+    "lists_remove":             "remover da lista",
+    "music_dislikeness":        "indicar 'não gostei' da música",
+    "music_likeness":           "indicar 'gostei' da música",
+    "music_query":              "consultar música",
+    "music_settings":           "configurar música",
+    "news_query":               "buscar notícias",
+    "play_audiobook":           "tocar audiolivro",
+    "play_game":                "jogar",
+    "play_music":               "tocar música",
+    "play_podcasts":            "tocar podcast",
+    "play_radio":               "tocar rádio",
+    "qa_currency":              "perguntar sobre câmbio",
+    "qa_definition":            "pedir definição",
+    "qa_factoid":               "perguntar fato ou curiosidade",
+    "qa_maths":                 "perguntar matemática",
+    "qa_stock":                 "perguntar sobre ações da bolsa",
+    "recommendation_events":    "recomendar eventos",
     "recommendation_locations": "recomendar lugares",
-    "recommendation_movies": "recomendar filmes",
-    "social_post": "postar em rede social",
-    "social_query": "consultar rede social",
-    "takeaway_order": "pedir comida",
-    "takeaway_query": "consultar pedido de comida",
-    "transport_query": "consultar transporte",
-    "transport_taxi": "chamar táxi",
-    "transport_ticket": "comprar passagem",
-    "transport_traffic": "consultar trânsito",
-    "weather_query": "consultar previsão do tempo"
+    "recommendation_movies":    "recomendar filmes",
+    "social_post":              "postar em rede social",
+    "social_query":             "consultar rede social",
+    "takeaway_order":           "pedir comida",
+    "takeaway_query":           "consultar pedido de comida",
+    "transport_query":          "consultar transporte",
+    "transport_taxi":           "chamar táxi",
+    "transport_ticket":         "comprar passagem",
+    "transport_traffic":        "consultar trânsito",
+    "weather_query":            "consultar previsão do tempo",
 }
 
+# ---------------------------------------------------------------------------
+# Funções
+# ---------------------------------------------------------------------------
 
-def load_data_from_jsonl(file_path):
+def download_and_extract_data() -> Path:
+    """
+    Verifica se o arquivo pt-PT.jsonl já existe localmente.
+    Se não, faz o download do tarball v1.1 do MASSIVE do S3 e extrai o arquivo.
+    Retorna o Path do arquivo jsonl.
+    """
+    script_dir = Path(__file__).resolve().parent
+    local_jsonl = script_dir / "1.1" / "data" / "pt-PT.jsonl"
+    
+    if local_jsonl.exists():
+        print(f"Arquivo local encontrado em: {local_jsonl}")
+        return local_jsonl
+        
+    url = "https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.1.tar.gz"
+    archive_path = script_dir / "massive.tar.gz"
+    
+    print(f"Baixando base de dados MASSIVE do Amazon S3: {url}...")
+    try:
+        urllib.request.urlretrieve(url, archive_path)
+        print("Download concluído com sucesso!")
+        
+        print("Extraindo pt-PT.jsonl...")
+        with tarfile.open(archive_path, "r:gz") as tar:
+            found = False
+            for member in tar.getmembers():
+                if "pt-PT.jsonl" in member.name:
+                    print(f"Extraindo: {member.name}")
+                    tar.extract(member, path=script_dir)
+                    found = True
+                    break
+            if not found:
+                raise FileNotFoundError("pt-PT.jsonl não foi encontrado no arquivo tar.gz")
+                
+    finally:
+        if archive_path.exists():
+            print("Limpando arquivo compactado temporário...")
+            archive_path.unlink()
+            
+    return local_jsonl
+
+
+def load_data_from_jsonl(file_path: Path) -> pd.DataFrame | None:
     """
     Carrega, extrai, limpa e traduz os dados do arquivo JSONL.
     """
@@ -96,9 +153,6 @@ def load_data_from_jsonl(file_path):
                 except json.JSONDecodeError:
                     print(f"Aviso: Ignorando linha mal formatada: {line}")
                     
-    except FileNotFoundError:
-        print(f"ERRO: O arquivo '{file_path}' não foi encontrado.")
-        return None
     except Exception as e:
         print(f"Ocorreu um erro ao carregar o arquivo JSONL: {e}")
         return None
@@ -111,7 +165,6 @@ def load_data_from_jsonl(file_path):
         return None
 
     initial_rows = len(df)
-    
     df.dropna(subset=[INPUT_TEXT_COLUMN, INPUT_LABEL_COLUMN], inplace=True)
     
     clean_df = df[[INPUT_TEXT_COLUMN, INPUT_LABEL_COLUMN]].copy()
@@ -123,8 +176,7 @@ def load_data_from_jsonl(file_path):
     
     print(f"{initial_rows - len(clean_df)} linhas com dados inválidos foram removidas.")
 
-
-    print("Traduzindo labels para o formato descritivo...")
+    print("Traduzindo labels para o formato descritivo (PT-BR)...")
     mapped_labels = clean_df[FINAL_LABEL_COLUMN].map(LABEL_MAP)
 
     unmapped_mask = mapped_labels.isna()
@@ -138,12 +190,12 @@ def load_data_from_jsonl(file_path):
     print(f"Total final: {len(clean_df)} amostras limpas e traduzidas.")
     return clean_df
 
-def save_json_pool(dataframe, file_path):
+
+def save_json_pool(dataframe: pd.DataFrame, file_path: Path) -> None:
     """
     Salva o DataFrame como um pool de dados em formato JSONL (JSON Lines).
     """
     data_list = dataframe.to_dict('records')
-    
     print(f"Salvando {len(data_list)} registros em JSONL em: {file_path}")
 
     with open(file_path, 'w', encoding='utf-8') as f:
@@ -151,12 +203,19 @@ def save_json_pool(dataframe, file_path):
             json_line = json.dumps(record, ensure_ascii=False)
             f.write(json_line + '\n')
 
-def main():
+
+def main() -> None:
     """
     Função principal que orquestra a criação dos folds de validação cruzada.
     """
-    
-    full_df = load_data_from_jsonl(INPUT_FILE_PATH)
+    # Garante que os dados do MASSIVE estão disponíveis localmente
+    try:
+        jsonl_path = download_and_extract_data()
+    except Exception as e:
+        print(f"ERRO: Não foi possível obter os dados do MASSIVE: {e}")
+        return
+        
+    full_df = load_data_from_jsonl(jsonl_path)
     if full_df is None:
         return
 
@@ -179,7 +238,10 @@ def main():
         output_path = output_root / fold_name
         if output_path.exists():
             print(f"Removendo diretório antigo: {output_path}")
-            shutil.rmtree(output_path)
+            try:
+                shutil.rmtree(output_path)
+            except Exception as e:
+                print(f"Aviso: Falha ao remover {output_path}: {e}")
         output_path.mkdir(parents=True, exist_ok=True)
 
         df_test = folds[i].reset_index(drop=True)
@@ -195,6 +257,7 @@ def main():
         save_json_pool(df_test, output_path / "test.jsonl")
 
     print(f"\nPROCESSO CONCLUÍDO! {NUM_FOLDS} folds de validação cruzada foram criados em '{output_root}'")
+
 
 if __name__ == "__main__":
     main()
