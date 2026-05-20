@@ -162,8 +162,20 @@ A maioria possui versões few-shot com 5 folds.
 
 
 ## Como Usar
-Para executar todos os scripts, utilize o comando:
-`bash run_all_pipelines.sh`
+
+### Pré-requisitos (Git LFS)
+Esse repositório utiliza **Git LFS (Large File Storage)** para gerenciar arquivos de dados grandes. Antes de rodar os processamentos, certifique-se de baixar os arquivos reais com o comando:
+
+```bash
+git lfs pull
+```
+
+### Execução dos Pipelines
+Para processar e estruturar todos os conjuntos de dados de uma vez, execute o comando:
+
+```bash
+bash run_all_pipelines.sh
+```
 
 Todos os datasets em `few_shot/` seguem o mesmo padrão:
 
