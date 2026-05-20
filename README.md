@@ -162,6 +162,8 @@ A maioria possui versões few-shot com 5 folds.
 
 
 ## Como Usar
+Para executar todos os scripts, utilize o comando:
+`bash run_all_pipelines.sh`
 
 Todos os datasets em `few_shot/` seguem o mesmo padrão:
 
