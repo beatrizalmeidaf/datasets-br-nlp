@@ -1,18 +1,9 @@
 #!/bin/bash
 
-# Este script encontra e executa todos os scripts de processamento na pasta raw_data
-# E também limpa os arquivos .json e .jsonl antigos.
-
-echo "Iniciando limpeza e processamento de datasets..."
+echo "Iniciando processamento de datasets..."
 
 ROOT_DIR=$(pwd)
 
-echo "Limpando todos os arquivos .json e .jsonl antigos nos diretórios de output..."
-for d in "data" "category" "hate" "intent" "reviews"; do
-    if [ -d "$ROOT_DIR/$d" ]; then
-        find "$ROOT_DIR/$d" -type f \( -name "*.json" -o -name "*.jsonl" \) -delete 2>/dev/null
-    fi
-done
 
 # Detectar comando Python
 if command -v python3 &>/dev/null; then
