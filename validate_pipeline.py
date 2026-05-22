@@ -18,9 +18,6 @@ import sys
 from pathlib import Path
 from collections import defaultdict
 
-# ---------------------------------------------------------------------------
-# Configuração de datasets a validar
-# ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
 
 DATASETS = [
@@ -49,9 +46,6 @@ NUM_FOLDS   = 5
 SPLITS      = ["train", "valid", "test"]
 REQUIRED_COLS = {"text", "label"}
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 class Color:
     RED    = "\033[91m"
     GREEN  = "\033[92m"
@@ -285,8 +279,6 @@ def validate_corpus(task: str, name: str):
     corpus_result = {"dataset": name, "task": task, "folds": {}, "global_issues": []}
     all_issues = []
 
-    # Coleta textos de todos os folds/splits para checar contaminação global
-    # (mesma amostra de teste em fold A aparecendo no treino de fold B — permitido no CV)
     fold_test_sets = {}
 
     for fold_dir in fold_dirs:
@@ -311,14 +303,12 @@ def validate_corpus(task: str, name: str):
                 else:
                     info(iss)
 
-        # Coleta teste para análise global
+        # coleta teste para análise global
         test_path = fold_dir / "test.jsonl"
         recs, _ = load_jsonl(test_path)
         if recs:
             fold_test_sets[fold_name] = set(r.get("text","") for r in recs)
 
-    # Verifica que os conjuntos de teste de todos os folds são disjuntos
-    # (garantia do CV — cada sample vai para o teste exatamente uma vez)
     fold_names = list(fold_test_sets.keys())
     test_overlap_found = False
     for i in range(len(fold_names)):
