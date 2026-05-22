@@ -75,6 +75,8 @@ def load_and_merge_pkls(base_path, files_list):
     full_df[INPUT_LABEL_COLUMN] = pd.to_numeric(full_df[INPUT_LABEL_COLUMN], errors='coerce')
     
     full_df.dropna(subset=[FINAL_TEXT_COLUMN, INPUT_LABEL_COLUMN], inplace=True)
+    full_df[FINAL_TEXT_COLUMN] = full_df[FINAL_TEXT_COLUMN].astype(str).str.strip()
+    full_df = full_df[full_df[FINAL_TEXT_COLUMN] != ''].copy()
     
     full_df[INPUT_LABEL_COLUMN] = full_df[INPUT_LABEL_COLUMN].astype(int)
 

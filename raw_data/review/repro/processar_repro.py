@@ -43,7 +43,9 @@ def load_data_from_csv(file_path):
 
     print(f"Total de {len(df)} amostras carregadas. Limpando e preparando os dados...")
 
-    df[FINAL_TEXT_COLUMN] = df[CSV_TITLE_COLUMN].fillna('') + ' ' + df[CSV_TEXT_COLUMN].fillna('')
+    df[FINAL_TEXT_COLUMN] = df[CSV_TITLE_COLUMN].fillna('').astype(str) + ' ' + df[CSV_TEXT_COLUMN].fillna('').astype(str)
+    df[FINAL_TEXT_COLUMN] = df[FINAL_TEXT_COLUMN].str.strip()
+    df = df[df[FINAL_TEXT_COLUMN] != ''].copy()
 
     df[CSV_LABEL_COLUMN] = pd.to_numeric(df[CSV_LABEL_COLUMN], errors='coerce')
     

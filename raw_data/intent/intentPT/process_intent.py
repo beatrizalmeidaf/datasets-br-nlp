@@ -14,6 +14,7 @@ import tarfile
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import StratifiedKFold
 
 # ---------------------------------------------------------------------------
 # Configuração
@@ -226,8 +227,10 @@ def main() -> None:
     print(f"\nEmbaralhando o dataset único com a semente {RANDOM_SEED}...")
     df_shuffled = df_deduplicated.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
 
-    print(f"Dividindo os dados únicos em {NUM_FOLDS} folds...")
-    folds = [df_shuffled.iloc[idx] for idx in np.array_split(range(len(df_shuffled)), NUM_FOLDS)]
+    print(f"Dividindo os dados em {NUM_FOLDS} folds ESTRATIFICADOS por classe...")
+    skf = StratifiedKFold(n_splits=NUM_FOLDS, shuffle=True, random_state=RANDOM_SEED)
+    fold_indices = list(skf.split(df_shuffled, df_shuffled[FINAL_LABEL_COLUMN]))
+    folds = [df_shuffled.iloc[test_idx].reset_index(drop=True) for _, test_idx in fold_indices]
 
     output_root = Path(OUTPUT_BASE_DIR) / DATASET_NAME / "few_shot"
 

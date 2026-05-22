@@ -54,7 +54,8 @@ def load_data_from_csv(file_path, label_column):
         print(f"Colunas encontradas: {list(df.columns)}")
         return None
 
-    df[FINAL_TEXT_COLUMN] = df[INPUT_TEXT_COLUMN].astype(str).fillna('')
+    df[FINAL_TEXT_COLUMN] = df[INPUT_TEXT_COLUMN].fillna('').astype(str).str.strip()
+    df = df[df[FINAL_TEXT_COLUMN] != ''].copy()
     df[label_column] = pd.to_numeric(df[label_column], errors='coerce')
 
     initial_rows = len(df)
